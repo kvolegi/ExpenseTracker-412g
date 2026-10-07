@@ -160,3 +160,36 @@ CREATE TRIGGER on_user_created AFTER INSERT ON users
     FOR EACH ROW EXECUTE FUNCTION create_user_settings();
 
 -- ============================================
+-- ROW LEVEL SECURITY (Supabase RLS)
+-- ============================================
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE transactions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE budgets ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE tags ENABLE ROW LEVEL SECURITY;
+
+-- Users can only see their own data
+CREATE POLICY "Users can view own profile" ON users FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "Users can update own profile" ON users FOR UPDATE USING (auth.uid() = id);
+
+CREATE POLICY "Users can CRUD own transactions" ON transactions 
+    FOR ALL USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can view default and own categories" ON categories 
+    FOR SELECT USING (user_id IS NULL OR auth.uid() = user_id);
+CREATE POLICY "Users can manage own categories" ON categories 
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own categories" ON categories 
+    FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete own categories" ON categories 
+    FOR DELETE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can CRUD own settings" ON user_settings 
+    FOR ALL USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can CRUD own budgets" ON budgets 
+    FOR ALL USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can CRUD own tags" ON tags 
+    FOR ALL USING (auth.uid() = user_id);
