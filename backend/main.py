@@ -62,6 +62,12 @@ async def root():
 @app.on_event("startup")
 async def startup():
     logger.info("Starting Expense Tracker API", version=settings.APP_VERSION)
+    # Setup Observer listeners
+    from src.patterns.patterns import event_bus
+    async def on_transaction_created(data: dict):
+        logger.info("Observer: transaction.created", user=data.get("user_id"))
+
+    event_bus.subscribe("transaction.created", on_transaction_created)
 
 
 if __name__ == "__main__":
