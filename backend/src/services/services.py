@@ -1,7 +1,6 @@
 """
-Services - Application Business Logic Layer (Лабораторна робота №2)
-Багатошарова архітектура: шар застосунку координує виконання сценаріїв
-та взаємодіє з репозиторіями для збереження даних.
+Services - Business Logic Layer
+Includes Facade pattern for transaction operations
 """
 from datetime import datetime
 from decimal import Decimal
@@ -11,14 +10,17 @@ from uuid import UUID
 from src.core.logger import logger
 from src.core.security import hash_password, verify_password, create_access_token
 from src.models.schemas import TransactionCreate, TransactionUpdate
+from src.patterns.patterns import (
+    ExpenseBuilder, PaymentFactory, NotifierFactory,
+    TransactionSorter, event_bus
+)
 from src.repositories.repositories import (
     TransactionRepository, CategoryRepository, UserRepository
 )
-from src.validators.expense_validator import ExpenseValidator
-
+from src.validators.expense_validator import ExpenseValidator 
 
 # ============================================
-# AUTH SERVICE (Сценарій: Автентифікація)
+# AUTH SERVICE
 # ============================================
 class AuthService:
     def __init__(self):
@@ -68,28 +70,65 @@ class AuthService:
 
 
 # ============================================
-# TRANSACTION SERVICE (Сценарій: Облік транзакцій)
+# TRANSACTION FACADE
+# Facade: single service for create + notify + log
 # ============================================
-class TransactionService:
+class TransactionFacade:
+    """
+    Facade Pattern: unified interface for transaction lifecycle:
+    1. Build transaction (Builder)
+    2. Process payment (Factory)
+    3. Save to DB (Repository)
+    4. Notify user (Factory)
+    5. Publish event (Observer)
+    6. Log (Singleton)
+    """
+
     def __init__(self):
         self.tx_repo = TransactionRepository()
 
     async def create_transaction(self, user_id: str, data: TransactionCreate) -> dict:
         ExpenseValidator.validate(data.model_dump())
 
-        expense_data = {
-            "type": data.type,
-            "amount": float(data.amount),
-            "currency": data.currency,
-            "category_id": str(data.category_id) if data.category_id else None,
-            "comment": data.comment,
-            "payment_method": data.payment_method,
-            "transaction_date": data.transaction_date.isoformat() if data.transaction_date else None,
-            "tag_ids": [str(tid) for tid in (data.tag_ids or [])]
-        }
+        # 1. Build expense using Builder pattern
+        builder = (
+            ExpenseBuilder()
+            .set_type(data.type)
+            .set_amount(data.amount, data.currency)
+            .set_category(str(data.category_id) if data.category_id else None)
+            .set_comment(data.comment)
+            .set_payment_method(data.payment_method)
+            .set_date(data.transaction_date)
+            .add_tags([str(tid) for tid in (data.tag_ids or [])])
+        )
+        expense_data = builder.to_dict()
+        expense_data["tag_ids"] = [str(tid) for tid in (data.tag_ids or [])]
 
+        # 2. Process payment (Factory)
+        processor = PaymentFactory.create(data.payment_method)
+        payment_result = processor.process(data.amount)
+        logger.info("Payment processed", result=payment_result)
+
+        # 3. Save to DB (Repository)
         transaction = await self.tx_repo.create(user_id, expense_data)
-        logger.info("Transaction recorded", id=transaction.get("id"), user_id=user_id)
+
+        # 4. Notify user (Factory) - async fire-and-forget
+        try:
+            notifier = NotifierFactory.create("telegram")
+            sign = "+" if data.type == "income" else "-"
+            await notifier.send(
+                user_id,
+                f"Transaction recorded: {sign}{data.amount} {data.currency}"
+            )
+        except Exception as e:
+            logger.warning("Notification failed", error=str(e))
+
+        # 5. Publish Observer event
+        await event_bus.publish("transaction.created", {
+            "user_id": user_id,
+            "transaction": transaction
+        })
+
         return transaction
 
     async def get_transactions(
@@ -106,18 +145,12 @@ class TransactionService:
             user_id, type_filter, category_id, month, limit, offset
         )
 
-        if sort_by == "amount":
-            items = sorted(items, key=lambda x: float(x.get("amount", 0)), reverse=True)
-        elif sort_by == "category":
-            items = sorted(
-                items,
-                key=lambda x: (x.get("category") or {}).get("name", "") if isinstance(x.get("category"), dict) else ""
-            )
-        else:
-            items = sorted(items, key=lambda x: str(x.get("transaction_date", "")), reverse=True)
+        # Apply Strategy pattern sorting
+        sorter = TransactionSorter(sort_by)
+        items = sorter.sort(items)
 
-        income_total = sum(float(t.get("amount", 0)) for t in items if t.get("type") == "income")
-        expense_total = sum(float(t.get("amount", 0)) for t in items if t.get("type") == "expense")
+        income_total = sum(float(t["amount"]) for t in items if t["type"] == "income")
+        expense_total = sum(float(t["amount"]) for t in items if t["type"] == "expense")
 
         return {
             "items": items,
@@ -129,16 +162,21 @@ class TransactionService:
 
     async def update_transaction(self, tx_id: str, user_id: str, data: TransactionUpdate) -> Optional[dict]:
         update_data = data.model_dump(exclude_unset=True)
-        return await self.tx_repo.update(tx_id, user_id, update_data)
+        tx = await self.tx_repo.update(tx_id, user_id, update_data)
+
+        if tx:
+            await event_bus.publish("transaction.updated", {"user_id": user_id, "transaction": tx})
+
+        return tx
 
     async def delete_transaction(self, tx_id: str, user_id: str) -> bool:
-        return await self.tx_repo.delete(tx_id, user_id)
+        deleted = await self.tx_repo.delete(tx_id, user_id)
+        if deleted:
+            await event_bus.publish("transaction.deleted", {"user_id": user_id, "tx_id": tx_id})
+        return deleted
 
     async def get_stats(self, user_id: str, month: Optional[str] = None) -> dict:
         return await self.tx_repo.get_stats(user_id, month)
-
-
-TransactionFacade = TransactionService
 
 
 # ============================================
