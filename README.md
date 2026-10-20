@@ -7,7 +7,7 @@
 * **Петрушенко Мілєна Романівна** — Системний архітектор / Team Lead
 * **Бевзюк Єгор Сергійович** — Інженер з якості / UI Lead
 
-## Архітектурний розвиток проєкту за лабораторними роботами
+## Еволюція архітектури за лабораторними роботами
 
 ### 🏷️ Лабораторна робота №1: Архітектурний контекст та вибір стилю
 * [ADR-001: Вибір архітектурного стилю](docs/adr/ADR-001-architectural-style.md) (Модульний моноліт)
@@ -22,11 +22,22 @@
 * [Оцінка сценаріїв якості](docs/QUALITY_ASSESSMENT.md).
 
 ### 🏷️ Лабораторна робота №3: Патерни проєктування (GoF)
-* **Породжувальні:** `PaymentFactory`, `NotifierFactory`, `ExpenseBuilder`.
+* **Породжувальні:** `PaymentFactory` (комісії платежів), `NotifierFactory`, `ExpenseBuilder` (покрокова збірка транзакції).
 * **Поведінкові:** `SortStrategy` (`SortByDate`, `SortByAmount`, `SortByCategory`), `EventBus` (`event_bus`).
 * **Структурні:** `TransactionFacade` у шарі застосунку.
 * [Детальний опис патернів та метрик рефакторингу](docs/patterns.md).
-* [Журнал змін проєкту](CHANGELOG.md).
+
+### 🏷️ Лабораторна робота №4: Розробка клієнтської частини застосунку
+* Клієнтська частина: **Telegram Mini App** на чистому стеку (HTML5 / CSS3 / Vanilla JS) у каталозі `frontend/`.
+* Клієнтський сервісний шар: `frontend/api.js` (`ApiService`, `Logger`, `EventBus`, `ExpenseBuilder`).
+* Автономний сервер `frontend/server.py` та конфігурація розгортання `frontend/railway.toml`.
+* Екрани: Splash, Login (Telegram Auth), Home (Баланс, список транзакцій), Overview (Тижневий графік витрат), Profile.
+* [Архітектура клієнтської частини та навігаційні потоки](docs/frontend-architecture.md).
+* [Журнал версій та змін проєкту](CHANGELOG.md).
+
+## Швидкий запуск
+1. Запуск бекенду: `cd backend && uvicorn main:app --reload` (порт 8000, Swagger на `/docs`).
+2. Запуск фронтенду: `cd frontend && python server.py` (порт 3000, Mini App на `http://localhost:3000`).
 
 ## Ліцензія
 [MIT License](LICENSE) © 2026 Чугунникова В.І., Петрушенко М.Р., Бевзюк Є.С.
