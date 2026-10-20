@@ -159,11 +159,21 @@ _local_db_singleton = LocalDatabaseClient()
 def get_supabase() -> Client:
     """Returns singleton Supabase client with local fallback"""
     try:
-        if settings.SUPABASE_URL and settings.SUPABASE_KEY and not settings.SUPABASE_KEY.startswith("test"):
+        if (
+            settings.SUPABASE_URL
+            and settings.SUPABASE_KEY
+            and not settings.SUPABASE_KEY.startswith("test")
+            and not settings.SUPABASE_KEY.endswith(".test")
+        ):
+            import socket
+            from urllib.parse import urlparse
+            host = urlparse(settings.SUPABASE_URL).hostname
+            if host:
+                socket.gethostbyname(host)
             logger.info("Initializing Supabase client", url=settings.SUPABASE_URL[:30] + "...")
             return create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)
     except Exception as e:
-        logger.warning("Supabase client init failed, using local offline storage", error=str(e))
+        logger.warning("Supabase unreachable, using local offline storage", error=str(e))
     return _local_db_singleton
 
 
@@ -171,9 +181,19 @@ def get_supabase() -> Client:
 def get_supabase_admin() -> Client:
     """Returns Supabase admin client with local fallback"""
     try:
-        if settings.SUPABASE_URL and settings.SUPABASE_SERVICE_KEY and not settings.SUPABASE_SERVICE_KEY.startswith("test"):
+        if (
+            settings.SUPABASE_URL
+            and settings.SUPABASE_SERVICE_KEY
+            and not settings.SUPABASE_SERVICE_KEY.startswith("test")
+            and not settings.SUPABASE_SERVICE_KEY.endswith(".test")
+        ):
+            import socket
+            from urllib.parse import urlparse
+            host = urlparse(settings.SUPABASE_URL).hostname
+            if host:
+                socket.gethostbyname(host)
             return create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)
     except Exception as e:
-        logger.warning("Supabase admin init failed, using local offline storage", error=str(e))
+        logger.warning("Supabase admin unreachable, using local offline storage", error=str(e))
     return _local_db_singleton
 

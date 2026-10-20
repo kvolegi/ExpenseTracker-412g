@@ -61,6 +61,17 @@ async def telegram_auth(data: TelegramAuth):
         raise HTTPException(status_code=500, detail=f"Login error: {str(e)}")
 
 
+@auth_router.post("/telegram/dev")
+async def telegram_dev_auth(data: dict):
+    user_data = {
+        "id": data.get("user_id", 99999),
+        "username": data.get("username", "milena_lead"),
+        "first_name": data.get("first_name", "Milena"),
+        "last_name": data.get("last_name", "Petrushenko"),
+    }
+    return await auth_service.telegram_login(user_data)
+
+
 @auth_router.get("/me")
 async def get_me(current_user: dict = Depends(get_current_user)):
     from src.repositories.repositories import UserRepository
