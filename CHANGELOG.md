@@ -1,5 +1,14 @@
 # 📋 CHANGELOG — Журнал змін проєкту Expense Tracker
 
+## [1.2.0] — 20.10.2026 (Лабораторна робота №4)
+### Додано
+- Клієнтська частина: Telegram Mini App на чистому HTML/CSS/Vanilla JS без сторонніх фреймворків (`frontend/index.html`).
+- Клієнтський шар сервісів `api.js` (`ApiService`, `Logger`, `EventBus`, `ExpenseBuilder`, `SortStrategies`).
+- Автономний статичний сервер `server.py` на `http.server` з CORS-заголовками для локального запуску на порті 3000.
+- Конфігурація розгортання на платформі Railway (`railway.toml`).
+- Підтримка темної та світлої теми відповідно до параметрів Telegram WebApp.
+- Екрани: Splash Screen, Login (Telegram Auth), Головний екран (Home, Overview з графіком за тижнями, Profile), Модальне вікно додавання/видалення транзакції.
+
 ## [1.1.0] — 16.10.2026 (Лабораторна робота №3)
 ### Додано
 - Патерни проєктування GoF у модулі `backend/src/patterns/patterns.py`:
