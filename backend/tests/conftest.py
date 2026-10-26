@@ -1,0 +1,55 @@
+# tests/conftest.py
+import os
+import pytest
+from unittest.mock import MagicMock
+
+# Set testing environment variables before any application imports
+os.environ.setdefault("SUPABASE_URL", "https://test.supabase.co")
+os.environ.setdefault("SUPABASE_KEY", "fake.fake.fake")
+os.environ.setdefault("SUPABASE_SERVICE_KEY", "fake.fake.fake")
+os.environ.setdefault("JWT_SECRET", "test-jwt-secret-for-ci-only")
+os.environ.setdefault("TELEGRAM_BOT_TOKEN", "fake-telegram-token")
+
+
+@pytest.fixture
+def mock_supabase():
+    """
+    Mock-клієнт Supabase для інтеграційних тестів.
+    Замінює реальне підключення до БД — тести працюють
+    без мережі та реальних даних.
+    """
+    client = MagicMock()
+
+    # ── INSERT ────────────────────────────────────────────────
+    client.table.return_value.insert.return_value \
+        .execute.return_value.data = [
+            {'id': 'test-id', 'type': 'income',
+             'amount': '100', 'user_id': 'user-1'}
+        ]
+
+    # ── SELECT (список) ───────────────────────────────────────
+    client.table.return_value.select.return_value \
+        .eq.return_value.execute.return_value.data = [
+            {'id': 'test-id', 'type': 'income', 'amount': '100'}
+        ]
+
+    # ── SELECT (single) ───────────────────────────────────────
+    client.table.return_value.select.return_value \
+        .eq.return_value.eq.return_value \
+        .single.return_value.execute.return_value.data = {
+            'id': 'test-id', 'type': 'income', 'amount': '100'
+        }
+
+    # ── DELETE ────────────────────────────────────────────────
+    client.table.return_value.delete.return_value \
+        .eq.return_value.eq.return_value \
+        .execute.return_value.data = [{'id': 'test-id'}]
+
+    # ── UPDATE ────────────────────────────────────────────────
+    client.table.return_value.update.return_value \
+        .eq.return_value.eq.return_value \
+        .execute.return_value.data = [
+            {'id': 'test-id', 'type': 'income', 'amount': '250'}
+        ]
+
+    return client
