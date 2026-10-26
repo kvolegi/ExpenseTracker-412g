@@ -474,11 +474,9 @@
 
 <script>
 // ─────────────────────────────────────────────
-// CONFIG — Railway backend URL with localhost fallback
+// CONFIG — API endpoint
 // ─────────────────────────────────────────────
-const API_BASE = (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' || !window.location.hostname)
-  ? 'http://127.0.0.1:8000/api/v1'
-  : 'https://expensetrackerbot-10-production.up.railway.app/api/v1';
+const API_BASE = '/api/v1';
 
 // ─────────────────────────────────────────────
 // HELPERS
@@ -544,12 +542,10 @@ const App = (() => {
         tgUser.username ? `@${tgUser.username}` : `ID: ${tgUser.id}`;
       const initials = (tgUser.first_name || 'T')[0].toUpperCase();
       document.getElementById('tg-avatar').textContent = initials;
+      document.getElementById('btn-login-text').textContent = 'Continue as ' + (tgUser.first_name || 'User');
     } else {
       // Not in Telegram — show dev fallback
       document.getElementById('dev-note').style.display = 'block';
-      const btn = document.getElementById('btn-login');
-      btn.onclick = () => App.devLogin();
-      document.getElementById('btn-login-text').textContent = 'Увійти як Мілена (Dev Demo)';
     }
   }
 
@@ -585,7 +581,7 @@ const App = (() => {
     try {
       // Use a fake telegram payload for dev — backend must allow this
       const fakeInitData = 'user=%7B%22id%22%3A99999%2C%22first_name%22%3A%22Dev%22%2C%22username%22%3A%22devuser%22%7D&hash=dev_bypass';
-      const res = await apiFetch('POST', '/auth/telegram/dev', { user_id: 99999, username: 'milena_lead', first_name: 'Мілена' });
+      const res = await apiFetch('POST', '/auth/telegram/dev', { user_id: 99999, username: 'devuser', first_name: 'Dev' });
       token = res.access_token;
       user = res.user;
       localStorage.setItem('et_token', token);
@@ -595,7 +591,7 @@ const App = (() => {
     } catch(e) {
       // If dev endpoint doesn't exist, use local mock
       log('Dev login fallback (local mock)', e.message);
-      user = { id: 'local', first_name: 'Мілена', username: 'milena_lead', telegram_id: 99999 };
+      user = { id: 'local', first_name: 'Dev', username: 'devuser', telegram_id: 99999 };
       token = 'dev_token';
       showMain();
       // Don't loadData — no real token
