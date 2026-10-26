@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/assets/social-preview.png" alt="Expense Tracker Social Preview" width="100%" />
+</p>
+
 # 💰 Expense Tracker — Повний наскрізний проєкт (Лабораторні роботи №1–8)
 
 ![CI](https://github.com/kvolegi/ExpenseTracker-412g/actions/workflows/ci.yml/badge.svg)
