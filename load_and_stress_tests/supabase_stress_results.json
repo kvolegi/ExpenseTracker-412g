@@ -1,0 +1,67 @@
+[
+  {
+    "concurrency": 10,
+    "total": 100,
+    "success": 100,
+    "errors": 0,
+    "error_rate": 0.0,
+    "rps": 42.0,
+    "p50": 105.5,
+    "p95": 847.1,
+    "p99": 907.2,
+    "errors_detail": {},
+    "duration": 2.38
+  },
+  {
+    "concurrency": 25,
+    "total": 250,
+    "success": 250,
+    "errors": 0,
+    "error_rate": 0.0,
+    "rps": 181.0,
+    "p50": 96.6,
+    "p95": 298.3,
+    "p99": 373.9,
+    "errors_detail": {},
+    "duration": 1.38
+  },
+  {
+    "concurrency": 50,
+    "total": 500,
+    "success": 500,
+    "errors": 0,
+    "error_rate": 0.0,
+    "rps": 228.7,
+    "p50": 167.5,
+    "p95": 393.6,
+    "p99": 534.0,
+    "errors_detail": {},
+    "duration": 2.19
+  },
+  {
+    "concurrency": 100,
+    "total": 1000,
+    "success": 1000,
+    "errors": 0,
+    "error_rate": 0.0,
+    "rps": 247.5,
+    "p50": 331.6,
+    "p95": 846.7,
+    "p99": 992.8,
+    "errors_detail": {},
+    "duration": 4.04
+  },
+  {
+    "concurrency": 150,
+    "total": 1500,
+    "success": 1500,
+    "errors": 0,
+    "error_rate": 0.0,
+    "rps": 251.1,
+    "p50": 497.9,
+    "p95": 1124.4,
+    "p99": 1382.0,
+    "errors_detail": {},
+    "duration": 5.97
+  }
+]

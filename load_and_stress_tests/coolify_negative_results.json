@@ -1,0 +1,72 @@
+[
+  {
+    "test": "Negative amount (-150.00)",
+    "status": 422,
+    "body": "{\"detail\":[{\"type\":\"greater_than\",\"loc\":[\"body\",\"amount\"],\"msg\":\"Input should be greater than 0\",\"input\":-150.0,\"ctx\":{\"gt\":0}}]}"
+  },
+  {
+    "test": "Zero amount (0.00)",
+    "status": 422,
+    "body": "{\"detail\":[{\"type\":\"greater_than\",\"loc\":[\"body\",\"amount\"],\"msg\":\"Input should be greater than 0\",\"input\":0.0,\"ctx\":{\"gt\":0}}]}"
+  },
+  {
+    "test": "String 'Infinity' amount",
+    "status": 422,
+    "body": "{\"detail\":[{\"type\":\"finite_number\",\"loc\":[\"body\",\"amount\"],\"msg\":\"Input should be a finite number\",\"input\":\"Infinity\"}]}"
+  },
+  {
+    "test": "Huge float (1e308)",
+    "status": 422,
+    "body": "{\"detail\":[{\"type\":\"decimal_max_digits\",\"loc\":[\"body\",\"amount\"],\"msg\":\"Decimal input should have no more than 15 digits in total\",\"input\":1e+308,\"ctx\":{\"max_digits\":15}}]}"
+  },
+  {
+    "test": "Invalid category UUID format",
+    "status": 422,
+    "body": "{\"detail\":[{\"type\":\"uuid_parsing\",\"loc\":[\"body\",\"category_id\"],\"msg\":\"Input should be a valid UUID, invalid character: expected an optional prefix of `urn:uuid:` followed by [0-9a-fA-F-], found `n` at"
+  },
+  {
+    "test": "Non-existent Category UUID",
+    "status": 201,
+    "body": "{\"type\":\"expense\",\"amount\":100.0,\"currency\":\"USD\",\"category_id\":\"ffffffff-ffff-ffff-ffff-ffffffffffff\",\"comment\":null,\"payment_method\":\"card\",\"transaction_date\":\"2026-10-26T20:35:35.964509+00:00\",\"use"
+  },
+  {
+    "test": "SQL Injection payload in comment",
+    "status": 201,
+    "body": "{\"type\":\"expense\",\"amount\":50.0,\"currency\":\"USD\",\"category_id\":null,\"comment\":\"'); DROP TABLE transactions; SELECT * FROM users WHERE ('1'='1\",\"payment_method\":\"card\",\"transaction_date\":\"2026-10-26T20"
+  },
+  {
+    "test": "XSS Script payload in comment",
+    "status": 201,
+    "body": "{\"type\":\"expense\",\"amount\":75.0,\"currency\":\"USD\",\"category_id\":null,\"comment\":\"<script>alert('XSS_ATTACK_VECTOR_' + document.cookie);</script><img src=x onerror=alert(1)>\",\"payment_method\":\"card\",\"tra"
+  },
+  {
+    "test": "200,000 emojis in comment (~800 KB)",
+    "status": 201,
+    "body": "{\"type\":\"expense\",\"amount\":10.0,\"currency\":\"USD\",\"category_id\":null,\"comment\":\"💸💥🔥💣💸💥🔥💣💸💥🔥💣💸💥🔥💣💸💥🔥💣💸💥🔥💣💸💥🔥💣💸💥🔥💣💸💥🔥💣💸💥🔥💣💸💥🔥💣💸💥🔥💣💸💥🔥💣💸💥🔥💣💸💥🔥💣💸💥🔥💣💸💥🔥💣💸💥🔥💣💸💥🔥💣💸💥🔥💣💸💥🔥💣💸💥🔥💣💸💥🔥💣💸💥🔥💣💸💥🔥💣💸💥🔥💣💸💥🔥💣💸💥🔥💣💸💥🔥💣💸💥🔥💣💸"
+  },
+  {
+    "test": "10 MB massive payload",
+    "status": 201,
+    "body": "{\"type\":\"expense\",\"amount\":10.0,\"currency\":\"USD\",\"category_id\":null,\"comment\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+  },
+  {
+    "test": "JWT Alg 'none' bypass",
+    "status": 401,
+    "body": "{\"detail\":\"Invalid token\"}"
+  },
+  {
+    "test": "Malformed pagination parameters",
+    "status": 422,
+    "body": "{\"detail\":[{\"type\":\"int_parsing\",\"loc\":[\"query\",\"limit\"],\"msg\":\"Input should be a valid integer, unable to parse string as an integer\",\"input\":\"abc\"}]}"
+  },
+  {
+    "test": "Limit overflow (limit=9999999)",
+    "status": 422,
+    "body": "{\"detail\":[{\"type\":\"less_than_equal\",\"loc\":[\"query\",\"limit\"],\"msg\":\"Input should be less than or equal to 200\",\"input\":\"9999999\",\"ctx\":{\"le\":200}}]}"
+  },
+  {
+    "test": "Concurrent 50x DELETE on same tx_id",
+    "status": "Aggregated",
+    "body": "Statuses count: {404: 49, 204: 1}"
+  }
+]

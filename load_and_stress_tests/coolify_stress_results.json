@@ -1,0 +1,99 @@
+[
+  {
+    "concurrency": 10,
+    "total": 200,
+    "success": 200,
+    "errors": 0,
+    "error_rate": 0.0,
+    "rps": 130.7,
+    "p50": 71.6,
+    "p95": 118.0,
+    "p99": 169.8,
+    "errors_detail": {},
+    "duration": 1.53
+  },
+  {
+    "concurrency": 25,
+    "total": 500,
+    "success": 500,
+    "errors": 0,
+    "error_rate": 0.0,
+    "rps": 132.0,
+    "p50": 176.0,
+    "p95": 295.4,
+    "p99": 437.0,
+    "errors_detail": {},
+    "duration": 3.79
+  },
+  {
+    "concurrency": 50,
+    "total": 1000,
+    "success": 1000,
+    "errors": 0,
+    "error_rate": 0.0,
+    "rps": 126.6,
+    "p50": 352.1,
+    "p95": 788.7,
+    "p99": 1321.3,
+    "errors_detail": {},
+    "duration": 7.9
+  },
+  {
+    "concurrency": 100,
+    "total": 2000,
+    "success": 2000,
+    "errors": 0,
+    "error_rate": 0.0,
+    "rps": 118.7,
+    "p50": 731.1,
+    "p95": 1203.6,
+    "p99": 2864.9,
+    "errors_detail": {},
+    "duration": 16.85
+  },
+  {
+    "concurrency": 200,
+    "total": 3000,
+    "success": 3000,
+    "errors": 0,
+    "error_rate": 0.0,
+    "rps": 114.7,
+    "p50": 1017.0,
+    "p95": 3098.0,
+    "p99": 11510.3,
+    "errors_detail": {},
+    "duration": 26.16
+  },
+  {
+    "concurrency": 350,
+    "total": 3500,
+    "success": 3351,
+    "errors": 149,
+    "error_rate": 4.257142857142857,
+    "rps": 98.3,
+    "p50": 1290.2,
+    "p95": 5276.3,
+    "p99": 14217.8,
+    "errors_detail": {
+      "502": 19,
+      "ReadTimeout": 130
+    },
+    "duration": 35.59
+  },
+  {
+    "concurrency": 500,
+    "total": 5000,
+    "success": 4636,
+    "errors": 364,
+    "error_rate": 7.28,
+    "rps": 93.2,
+    "p50": 1965.8,
+    "p95": 6483.9,
+    "p99": 10983.5,
+    "errors_detail": {
+      "502": 23,
+      "ReadTimeout": 341
+    },
+    "duration": 53.66
+  }
+]
