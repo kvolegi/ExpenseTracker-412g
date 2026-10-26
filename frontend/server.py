@@ -16,7 +16,8 @@ class Handler(SimpleHTTPRequestHandler):
         print(f"[{self.address_string()}] {format % args}")
 
     def do_proxy(self):
-        backend_url = f"http://127.0.0.1:8000{self.path}"
+        backend_host = os.environ.get("BACKEND_URL", "http://127.0.0.1:8000").rstrip("/")
+        backend_url = f"{backend_host}{self.path}"
         headers = {k: v for k, v in self.headers.items() if k.lower() != 'host'}
         body = None
         content_length = int(self.headers.get('Content-Length', 0))

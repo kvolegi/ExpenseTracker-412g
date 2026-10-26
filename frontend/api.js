@@ -7,7 +7,7 @@ class ApiService {
 
   constructor() {
     const isLocal = typeof window !== 'undefined' && (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' || !window.location.hostname);
-    this.baseURL = isLocal ? 'http://127.0.0.1:8000/api/v1' : 'https://expensetrackerbot-10-production.up.railway.app/api/v1';    
+    this.baseURL = isLocal ? 'http://127.0.0.1:8000/api/v1' : '/api/v1';    
     this.token = localStorage.getItem('et_token');
     ApiService._instance = this;
   }
